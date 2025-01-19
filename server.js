@@ -4,10 +4,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 // Подключение к MongoDB через Mongoose
-mongoose.connect("mongodb+srv://admin:pass1234@cluster0.mongodb.net/task_manager?retryWrites=true&w=majority", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect("mongodb+srv://admin:pass1234@task-manager-cluster.mongodb.net/task_manager?retryWrites=true&w=majority")
     .then(() => console.log("Подключено к MongoDB"))
     .catch(err => console.error("Ошибка подключения:", err));
 
