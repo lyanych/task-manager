@@ -4,12 +4,12 @@ const mongoose = require("mongoose");
 const app = express();
 
 // Подключение к MongoDB через Mongoose
-mongoose.connect("mongodb+srv://admin:pass1234@task-manager-cluster.rs81g.mongodb.net/task_manager?retryWrites=true&w=majority", {
+mongoose.connect("mongodb+srv://admin:pass1234@cluster0.mongodb.net/task_manager?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-.then(() => console.log("Подключено к MongoDB"))
-.catch(err => console.error("Ошибка подключения:", err));
+    .then(() => console.log("Подключено к MongoDB"))
+    .catch(err => console.error("Ошибка подключения:", err));
 
 // Устанавливаем порт для сервера (Render использует переменную PORT)
 const PORT = process.env.PORT || 5000;
@@ -27,6 +27,21 @@ app.get("/test-db", (req, res) => {
         }
     } catch (err) {
         res.status(500).json({ error: "Ошибка подключения к базе данных", details: err.message });
+    }
+});
+
+// --- Маршрут для тестового создания коллекции и документа ---
+app.get("/test-db-create", async (req, res) => {
+    try {
+        // Получаем коллекцию "test_collection"
+        const collection = mongoose.connection.db.collection("test_collection");
+
+        // Вставляем тестовый документ
+        const result = await collection.insertOne({ testField: "This is a test document" });
+
+        res.json({ message: "Тестовая коллекция и документ успешно созданы!", result });
+    } catch (err) {
+        res.status(500).json({ error: "Ошибка при создании базы данных или коллекции", details: err.message });
     }
 });
 
