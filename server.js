@@ -14,6 +14,9 @@ mongoose.connect("mongodb+srv://admin:pass1234@cluster0.mongodb.net/task_manager
 // Устанавливаем порт для сервера (Render использует переменную PORT)
 const PORT = process.env.PORT || 5000;
 
+// --- Добавим тестовую строку для проверки авто-деплоя ---
+console.log("Проверка авто-деплоя работает!");
+
 // --- Маршрут для проверки подключения к базе данных ---
 app.get("/test-db", (req, res) => {
     try {
@@ -27,21 +30,6 @@ app.get("/test-db", (req, res) => {
         }
     } catch (err) {
         res.status(500).json({ error: "Ошибка подключения к базе данных", details: err.message });
-    }
-});
-
-// --- Маршрут для тестового создания коллекции и документа ---
-app.get("/test-db-create", async (req, res) => {
-    try {
-        // Получаем коллекцию "test_collection"
-        const collection = mongoose.connection.db.collection("test_collection");
-
-        // Вставляем тестовый документ
-        const result = await collection.insertOne({ testField: "This is a test document" });
-
-        res.json({ message: "Тестовая коллекция и документ успешно созданы!", result });
-    } catch (err) {
-        res.status(500).json({ error: "Ошибка при создании базы данных или коллекции", details: err.message });
     }
 });
 
