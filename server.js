@@ -5,6 +5,7 @@ const app = express();
 
 // Подключение к MongoDB через Mongoose
 mongoose.connect("mongodb://admin:pass1234@task-manager-cluster-shard-00-00.mongodb.net:27017,task-manager-cluster-shard-00-01.mongodb.net:27017,task-manager-cluster-shard-00-02.mongodb.net:27017/task_manager?ssl=true&replicaSet=atlas-xyz-shard-0&authSource=admin&retryWrites=true&w=majority")
+
     .then(() => console.log("Подключено к MongoDB"))
     .catch(err => console.error("Ошибка подключения:", err));
 
