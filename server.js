@@ -30,6 +30,21 @@ app.get("/test-db", (req, res) => {
     }
 });
 
+// --- Маршрут для создания базы данных и коллекции ---
+app.get("/test-db-create", async (req, res) => {
+    try {
+        // Подключаемся к коллекции "test_collection"
+        const collection = mongoose.connection.db.collection("test_collection");
+
+        // Добавляем тестовый документ
+        const result = await collection.insertOne({ testField: "This is a test document" });
+
+        res.json({ message: "База данных и коллекция успешно созданы!", result });
+    } catch (err) {
+        res.status(500).json({ error: "Ошибка при создании базы данных или коллекции", details: err.message });
+    }
+});
+
 // --- Запуск сервера ---
 // Сервер начинает слушать запросы на указанном порту
 app.listen(PORT, () => {
