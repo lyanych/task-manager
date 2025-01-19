@@ -1,14 +1,14 @@
 {
-  "name": "task-manager",
-  "version": "1.0.0",
-  "description": "Task manager server",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
+  "name": "task-manager", // Имя вашего проекта
+  "version": "1.0.0", // Версия проекта
+  "description": "Task manager server", // Описание проекта
+  "main": "server.js", // Главный файл вашего приложения
+  "scripts": { // Скрипты для запуска
+    "start": "node server.js" // Команда для запуска сервера
   },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "mongoose": "^8.9.5"
+  "dependencies": { // Зависимости проекта
+    "cors": "^2.8.5", // Пакет для обработки CORS-запросов
+    "express": "^4.18.2", // Фреймворк для создания сервера
+    "mongoose": "^8.9.5" // Библиотека для работы с MongoDB
   }
 }
