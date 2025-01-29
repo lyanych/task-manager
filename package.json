@@ -12,7 +12,9 @@
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "p": "^0.2.0",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
