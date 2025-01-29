@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
 // Получение списка сотрудников
-app.get("/employees/list", async (req, res) => {
+app.get("/employees", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM employees");
         res.json(result.rows);
