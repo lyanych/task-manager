@@ -4,7 +4,16 @@ const { neon } = require("@neondatabase/serverless");
 const path = require("path");
 
 const app = express();
+
+console.log("🔍 DATABASE_URL:", process.env.DATABASE_URL);
+
+if (!process.env.DATABASE_URL) {
+    console.error("❌ ОШИБКА: DATABASE_URL не задан в .env");
+    process.exit(1);
+}
+
 const sql = neon(process.env.DATABASE_URL);
+console.log("✅ Подключение к базе данных установлено");
 
 // Добавляем JSON парсер
 app.use(express.json());
@@ -93,8 +102,12 @@ app.delete("/employees/:id", async (req, res) => {
     }
 });
 
-// Запуск сервера
+// Запуск сервера с обработкой ошибок
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, (err) => {
+    if (err) {
+        console.error("❌ Ошибка при запуске сервера:", err);
+        process.exit(1);
+    }
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
 });
