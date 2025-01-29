@@ -38,6 +38,17 @@ app.get("/employees/list", async (req, res) => {
     }
 });
 
+// ✅ Маршрут для получения списка должностей
+app.get("/positions", async (req, res) => {
+    try {
+        const positions = await sql`SELECT * FROM position`;
+        res.json(positions);
+    } catch (err) {
+        console.error("❌ Ошибка получения должностей:", err);
+        res.status(500).json({ error: "Ошибка получения должностей", details: err.message });
+    }
+});
+
 // Проверка подключения к базе
 app.get("/test-db", async (req, res) => {
     try {
