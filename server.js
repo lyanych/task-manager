@@ -40,13 +40,13 @@ app.get("/positions", async (req, res) => {
     }
 });
 
-// Получение списка сотрудников
+// Получение списка сотрудников (ИСПРАВЛЕНО)
 app.get("/employees/list", async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT e.*, p.name AS position_name
-            FROM "Employees" e
-            JOIN "Position" p ON e.position_id = p.id
+            SELECT e.id, e.last_name, e.first_name, e.middle_name, e.phone_number, e.birth_date, p.name AS position_name
+            FROM employees e
+            JOIN position p ON e.position_id = p.id
         `);
         res.json(result.rows);
     } catch (err) {
@@ -66,7 +66,7 @@ app.post("/employees", async (req, res) => {
 
     try {
         const result = await pool.query(
-            `INSERT INTO "Employees" (last_name, first_name, middle_name, phone_number, birth_date, position_id, password)
+            `INSERT INTO employees (last_name, first_name, middle_name, phone_number, birth_date, position_id, password)
              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
             [last_name, first_name, middle_name || '', phone_number, birth_date, position_id, password]
         );
@@ -85,7 +85,7 @@ app.delete("/employees/:id", async (req, res) => {
     }
 
     try {
-        await pool.query("DELETE FROM \"Employees\" WHERE id = $1", [id]);
+        await pool.query("DELETE FROM employees WHERE id = $1", [id]);
         res.json({ message: "✅ Сотрудник удалён" });
     } catch (err) {
         console.error("❌ Ошибка удаления сотрудника:", err);
