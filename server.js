@@ -13,7 +13,7 @@ app.use(express.static("public"));
 // Получение списка сотрудников
 app.get("/employees", async (req, res) => {
     try {
-        const result = await pool.query("SELECT e.id, e.last_name, e.first_name, e.middle_name, e.phone_number, p.name AS position_name FROM employees e JOIN positions p ON e.position_id = p.id");
+        const result = await pool.query("SELECT e.id, e.last_name, e.first_name, e.middle_name, e.phone_number, p.name AS position_name FROM employees e JOIN position p ON e.position_id = p.id");
         res.json(result.rows);
     } catch (err) {
         console.error(err);
@@ -24,7 +24,7 @@ app.get("/employees", async (req, res) => {
 // Получение списка должностей
 app.get("/positions", async (req, res) => {
     try {
-        const result = await pool.query("SELECT id, name FROM positions");
+        const result = await pool.query("SELECT id, name FROM position");
         res.json(result.rows);
     } catch (err) {
         console.error(err);
