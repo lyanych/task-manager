@@ -4,75 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список сотрудников</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <script defer src="employees.js"></script>
 </head>
 <body>
     <h1>Список сотрудников</h1>
-    
-    <table>
+    <table border="1">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>ФИО</th>
                 <th>Телефон</th>
+                <th>Должность</th>
                 <th>Действия</th>
             </tr>
         </thead>
-        <tbody id="employeeTableBody">
-        </tbody>
+        <tbody id="employees-list"></tbody>
     </table>
-
-    <script>
-        async function fetchEmployees() {
-            try {
-                const response = await fetch("https://task-manager-hbud.onrender.com/employees");
-                const employees = await response.json();
-                
-                const tableBody = document.getElementById("employeeTableBody");
-                tableBody.innerHTML = "";
-                
-                employees.forEach(emp => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${emp.id}</td>
-                        <td>${emp.first_name} ${emp.last_name}</td>
-                        <td>${emp.phone_number}</td>
-                        <td>
-                            <button onclick="deleteEmployee(${emp.id})">Удалить</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error("Ошибка загрузки сотрудников", error);
-            }
-        }
-
-        async function deleteEmployee(id) {
-            if (confirm("Вы уверены, что хотите удалить сотрудника?")) {
-                try {
-                    await fetch(`https://task-manager-hbud.onrender.com/employees/${id}`, { method: "DELETE" });
-                    fetchEmployees(); // Перезагрузка списка сотрудников
-                } catch (error) {
-                    console.error("Ошибка удаления сотрудника", error);
-                }
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", fetchEmployees);
-    </script>
+    
+    <h2>Добавить сотрудника</h2>
+    <form id="employee-form">
+        <label>Фамилия: <input type="text" id="last_name" required></label><br>
+        <label>Имя: <input type="text" id="first_name" required></label><br>
+        <label>Отчество: <input type="text" id="middle_name"></label><br>
+        <label>Телефон: <input type="tel" id="phone_number" required></label><br>
+        <label>Дата рождения: <input type="date" id="birth_date" required></label><br>
+        <label>Пароль: <input type="password" id="password" required></label><br>
+        <label>Должность: 
+            <select id="position_id" required></select>
+        </label><br>
+        <button type="submit">Добавить сотрудника</button>
+    </form>
 </body>
 </html>
