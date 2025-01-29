@@ -32,7 +32,7 @@ app.get("/employees", (req, res) => {
 // Получение списка должностей
 app.get("/positions", async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM "Position"');
+        const result = await pool.query("SELECT * FROM position");
         res.json(result.rows);
     } catch (err) {
         console.error("❌ Ошибка получения должностей:", err);
