@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Настройка статических файлов
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Подключение к базе данных
 const pool = new Pool({
@@ -29,7 +29,7 @@ pool.connect()
 
 // Отдача HTML-страницы
 app.get("/employees", (req, res) => {
-    res.sendFile(path.join(__dirname, "employees.html"));
+    res.sendFile(path.join(__dirname, "public", "employees.html"));
 });
 
 // Получение списка должностей
