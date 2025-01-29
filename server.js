@@ -27,6 +27,17 @@ app.get("/employees", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "employees.html"));
 });
 
+// ✅ Маршрут для получения списка сотрудников
+app.get("/employees/list", async (req, res) => {
+    try {
+        const employees = await sql`SELECT * FROM employees`;
+        res.json(employees);
+    } catch (err) {
+        console.error("❌ Ошибка получения сотрудников:", err);
+        res.status(500).json({ error: "Ошибка получения сотрудников", details: err.message });
+    }
+});
+
 // Проверка подключения к базе
 app.get("/test-db", async (req, res) => {
     try {
