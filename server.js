@@ -8,6 +8,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Настройка статических файлов
+app.use(express.static(__dirname));
+
 // Подключение к базе данных
 const pool = new Pool({
     connectionString: "postgresql://neondb_owner:npg_VTUtx4N2pmaG@ep-frosty-snow-a2igen9e-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require",
@@ -40,7 +43,7 @@ app.get("/positions", async (req, res) => {
     }
 });
 
-// Получение списка сотрудников (ИСПРАВЛЕНО)
+// Получение списка сотрудников
 app.get("/employees/list", async (req, res) => {
     try {
         const result = await pool.query(`
