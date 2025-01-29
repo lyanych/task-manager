@@ -32,6 +32,21 @@ app.get("/employees.html", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "employees.html"));
 });
 
+// Добавление нового сотрудника
+app.post("/employees", async (req, res) => {
+    const { first_name, last_name, phone_number } = req.body;
+    try {
+        const result = await pool.query(
+            "INSERT INTO Employees (first_name, last_name, phone_number) VALUES ($1, $2, $3) RETURNING *",
+            [first_name, last_name, phone_number]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error("Ошибка добавления сотрудника", error);
+        res.status(500).json({ error: "Ошибка добавления сотрудника" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`🚀 Сервер запущен на порту ${port}`);
 });
