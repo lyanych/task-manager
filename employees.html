@@ -8,28 +8,27 @@
 <body>
     <h1>Управление сотрудниками</h1>
 
-    <!-- Форма добавления/редактирования сотрудника -->
     <form id="employeeForm">
-        <label for="lastName">Фамилия:</label>
-        <input type="text" id="lastName" name="lastName" required><br><br>
+        <label>Фамилия:</label>
+        <input type="text" id="lastName" required><br>
 
-        <label for="firstName">Имя:</label>
-        <input type="text" id="firstName" name="firstName" required><br><br>
+        <label>Имя:</label>
+        <input type="text" id="firstName" required><br>
 
-        <label for="middleName">Отчество:</label>
-        <input type="text" id="middleName" name="middleName"><br><br>
+        <label>Отчество:</label>
+        <input type="text" id="middleName"><br>
 
-        <label for="phoneNumber">Номер телефона:</label>
-        <input type="text" id="phoneNumber" name="phoneNumber" pattern="\d{10}" required><br><br>
+        <label>Телефон:</label>
+        <input type="text" id="phoneNumber" pattern="\d{10}" required><br>
 
-        <label for="birthDate">Дата рождения:</label>
-        <input type="date" id="birthDate" name="birthDate" required><br><br>
+        <label>Дата рождения:</label>
+        <input type="date" id="birthDate" required><br>
 
-        <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <label>Пароль:</label>
+        <input type="password" id="password" required><br>
 
-        <label for="position">Должность:</label>
-        <select id="position" name="position" required></select><br><br>
+        <label>Должность:</label>
+        <select id="position" required></select><br>
 
         <button type="submit">Сохранить</button>
     </form>
@@ -52,9 +51,8 @@
     </table>
 
     <script>
-        const apiUrl = 'https://ваш-домен-на-render.com'; // Замените на ваш URL
+        const apiUrl = 'https://task-manager-hbud.onrender.com';
 
-        // Загрузка списка должностей
         async function loadPositions() {
             const response = await fetch(`${apiUrl}/positions`);
             const positions = await response.json();
@@ -67,12 +65,11 @@
             });
         }
 
-        // Загрузка списка сотрудников
         async function loadEmployees() {
-            const response = await fetch(`${apiUrl}/employees`);
+            const response = await fetch(`${apiUrl}/employees/list`);
             const employees = await response.json();
-            const tableBody = document.getElementById('employeesTable').querySelector('tbody');
-            tableBody.innerHTML = ''; // Очистка таблицы
+            const tableBody = document.querySelector('#employeesTable tbody');
+            tableBody.innerHTML = '';
             employees.forEach(employee => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -84,7 +81,6 @@
                     <td>${employee.birth_date}</td>
                     <td>${employee.position_name}</td>
                     <td>
-                        <button onclick="editEmployee(${employee.id})">Редактировать</button>
                         <button onclick="deleteEmployee(${employee.id})">Удалить</button>
                     </td>
                 `;
@@ -92,28 +88,23 @@
             });
         }
 
-        // Добавление или обновление сотрудника
         document.getElementById('employeeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const employeeData = Object.fromEntries(formData.entries());
-            const method = employeeData.id ? 'PUT' : 'POST';
+            const data = new FormData(e.target);
             await fetch(`${apiUrl}/employees`, {
-                method,
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(employeeData),
+                body: JSON.stringify(Object.fromEntries(data.entries()))
             });
             e.target.reset();
             loadEmployees();
         });
 
-        // Удаление сотрудника
         async function deleteEmployee(id) {
             await fetch(`${apiUrl}/employees/${id}`, { method: 'DELETE' });
             loadEmployees();
         }
 
-        // Запуск
         loadPositions();
         loadEmployees();
     </script>

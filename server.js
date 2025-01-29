@@ -1,11 +1,10 @@
 const express = require("express");
 const { Client } = require("pg");
-const path = require("path"); // Для работы с путями
-const bodyParser = require("body-parser"); // Для обработки JSON в запросах
+const path = require("path");
+const bodyParser = require("body-parser");
 
 const app = express();
 
-// Middleware для обработки JSON
 app.use(bodyParser.json());
 
 // Твоя строка подключения к PostgreSQL Neon
@@ -14,14 +13,13 @@ const client = new Client({
     ssl: { rejectUnauthorized: false },
 });
 
-// Подключение к PostgreSQL
 client.connect()
     .then(() => console.log("✅ Подключено к PostgreSQL Neon"))
     .catch(err => console.error("❌ Ошибка подключения:", err));
 
 // --- Отдача HTML-страницы ---
 app.get("/employees", (req, res) => {
-    res.sendFile(path.join(__dirname, "employees.html")); // Замените "employees.html" на имя вашего файла
+    res.sendFile(path.join(__dirname, "employees.html"));
 });
 
 // --- API для должностей ---
