@@ -8,6 +8,7 @@
 </head>
 <body>
     <h1>Список сотрудников</h1>
+    <button onclick="showAddEmployeeForm()">Добавить сотрудника</button>
     <table border="1">
         <thead>
             <tr>
@@ -18,21 +19,25 @@
                 <th>Действия</th>
             </tr>
         </thead>
-        <tbody id="employees-list"></tbody>
+        <tbody id="employeesTableBody"></tbody>
     </table>
-    
-    <h2>Добавить сотрудника</h2>
-    <form id="employee-form">
-        <label>Фамилия: <input type="text" id="last_name" required></label><br>
-        <label>Имя: <input type="text" id="first_name" required></label><br>
-        <label>Отчество: <input type="text" id="middle_name"></label><br>
-        <label>Телефон: <input type="tel" id="phone_number" required></label><br>
-        <label>Дата рождения: <input type="date" id="birth_date" required></label><br>
-        <label>Пароль: <input type="password" id="password" required></label><br>
-        <label>Должность: 
-            <select id="position_id" required></select>
-        </label><br>
-        <button type="submit">Добавить сотрудника</button>
-    </form>
+
+    <div id="employeeForm" style="display:none;">
+        <h2>Добавить/Редактировать сотрудника</h2>
+        <form onsubmit="saveEmployee(event)">
+            <input type="hidden" id="employeeId">
+            <label>Фамилия: <input type="text" id="lastName" required></label><br>
+            <label>Имя: <input type="text" id="firstName" required></label><br>
+            <label>Отчество: <input type="text" id="middleName"></label><br>
+            <label>Телефон: <input type="text" id="phoneNumber" required></label><br>
+            <label>Дата рождения: <input type="date" id="birthDate" required></label><br>
+            <label>Пароль: <input type="password" id="password" required></label><br>
+            <label>Должность:
+                <select id="positionId" required></select>
+            </label><br>
+            <button type="submit">Сохранить</button>
+            <button type="button" onclick="hideEmployeeForm()">Отмена</button>
+        </form>
+    </div>
 </body>
 </html>
