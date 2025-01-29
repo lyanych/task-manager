@@ -89,24 +89,35 @@
         }
 
         document.getElementById('employeeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = new FormData(e.target);
-            await fetch(`${apiUrl}/employees`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(data.entries()))
-            });
-            e.target.reset();
-            loadEmployees();
-        });
+    e.preventDefault();
 
-        async function deleteEmployee(id) {
-            await fetch(`${apiUrl}/employees/${id}`, { method: 'DELETE' });
-            loadEmployees();
-        }
+    // Формируем объект данных
+    const employeeData = {
+        last_name: document.getElementById('lastName').value,
+        first_name: document.getElementById('firstName').value,
+        middle_name: document.getElementById('middleName').value || null, // Допускаем пустое значение
+        phone_number: document.getElementById('phoneNumber').value,
+        birth_date: document.getElementById('birthDate').value,
+        password: document.getElementById('password').value,
+        position_id: document.getElementById('position').value
+    };
 
-        loadPositions();
-        loadEmployees();
+    console.log("📤 Отправляем данные:", employeeData); // Логируем данные перед отправкой
+
+    // Отправка данных на сервер
+    const response = await fetch('https://task-manager-hbud.onrender.com/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(employeeData)
+    });
+
+    const result = await response.json();
+    console.log("✅ Ответ сервера:", result); // Логируем ответ сервера
+
+    e.target.reset();
+    loadEmployees(); // Обновляем список сотрудников
+});
+
     </script>
 </body>
 </html>
