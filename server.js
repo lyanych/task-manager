@@ -1,115 +1,78 @@
-require("dotenv").config();
 const express = require("express");
-const { neon } = require("@neondatabase/serverless");
-const path = require("path");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const { Pool } = require("pg");
+require("dotenv").config();
 
 const app = express();
+const port = 10000;
 
-console.log("🔍 DATABASE_URL:", process.env.DATABASE_URL);
+app.use(cors());
+app.use(bodyParser.json());
 
-if (!process.env.DATABASE_URL) {
-    console.error("❌ ОШИБКА: DATABASE_URL не задан в .env");
-    process.exit(1);
-}
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
-const sql = neon(process.env.DATABASE_URL);
-console.log("✅ Подключение к базе данных установлено");
-
-// Добавляем JSON парсер
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Настройка статических файлов
-app.use(express.static(path.join(__dirname, "public")));
-
-// ✅ Маршрут для загрузки employees.html
-app.get("/employees", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "employees.html"));
-});
-
-// ✅ Маршрут для получения списка сотрудников
+// Получение списка сотрудников
 app.get("/employees/list", async (req, res) => {
     try {
-        const employees = await sql`SELECT * FROM employees`;
-        res.json(employees);
-    } catch (err) {
-        console.error("❌ Ошибка получения сотрудников:", err);
-        res.status(500).json({ error: "Ошибка получения сотрудников", details: err.message });
+        const result = await pool.query("SELECT * FROM employees");
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Ошибка получения сотрудников:", error);
+        res.status(500).json({ error: "Ошибка сервера" });
     }
 });
 
-// ✅ Маршрут для получения списка должностей
-app.get("/positions", async (req, res) => {
+// Добавление сотрудника
+app.post("/employees", async (req, res) => {
     try {
-        const positions = await sql`SELECT * FROM position`;
-        res.json(positions);
-    } catch (err) {
-        console.error("❌ Ошибка получения должностей:", err);
-        res.status(500).json({ error: "Ошибка получения должностей", details: err.message });
-    }
-});
-
-// Проверка подключения к базе
-app.get("/test-db", async (req, res) => {
-    try {
-        const result = await sql`SELECT NOW()`;
-        res.json({ message: "✅ Подключение к базе успешно!", time: result[0] });
-    } catch (err) {
-        console.error("❌ Ошибка подключения к базе:", err);
-        res.status(500).json({ error: "Ошибка подключения к базе", details: err.message });
+        const { first_name, last_name, phone_number } = req.body;
+        if (!first_name || !last_name || !phone_number) {
+            return res.status(400).json({ error: "Все поля обязательны" });
+        }
+        const result = await pool.query(
+            "INSERT INTO employees (first_name, last_name, phone_number) VALUES ($1, $2, $3) RETURNING *",
+            [first_name, last_name, phone_number]
+        );
+        res.status(201).json({ message: "Сотрудник добавлен", employee: result.rows[0] });
+    } catch (error) {
+        console.error("Ошибка добавления сотрудника:", error);
+        res.status(500).json({ error: "Ошибка сервера" });
     }
 });
 
 // Удаление сотрудника
 app.delete("/employees/:id", async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).json({ error: "❌ ID сотрудника обязателен для удаления!" });
-    }
-
     try {
-        const result = await sql`DELETE FROM employees WHERE id = ${id} RETURNING id`;
-        if (result.length === 0) {
-            return res.status(404).json({ error: "❌ Сотрудник не найден!" });
-        }
-        res.json({ message: "✅ Сотрудник удалён", id: result[0].id });
-    } catch (err) {
-        console.error("❌ Ошибка удаления сотрудника:", err);
-        res.status(500).json({ error: "Ошибка удаления сотрудника", details: err.message });
+        const { id } = req.params;
+        await pool.query("DELETE FROM employees WHERE id = $1", [id]);
+        res.json({ message: "Сотрудник удалён" });
+    } catch (error) {
+        console.error("Ошибка удаления сотрудника:", error);
+        res.status(500).json({ error: "Ошибка сервера" });
     }
 });
 
-// Редактирование данных сотрудника
+// Обновление данных сотрудника
 app.put("/employees/:id", async (req, res) => {
-    const { id } = req.params;
-    const { first_name, last_name, phone_number, position_id } = req.body;
-    if (!id || !first_name || !last_name || !phone_number || !position_id) {
-        return res.status(400).json({ error: "❌ Все поля обязательны для редактирования!" });
-    }
-
     try {
-        const result = await sql`
-            UPDATE employees
-            SET first_name = ${first_name}, last_name = ${last_name}, phone_number = ${phone_number}, position_id = ${position_id}
-            WHERE id = ${id}
-            RETURNING *`;
-        
-        if (result.length === 0) {
-            return res.status(404).json({ error: "❌ Сотрудник не найден!" });
+        const { id } = req.params;
+        const { first_name, last_name, phone_number } = req.body;
+        if (!first_name || !last_name || !phone_number) {
+            return res.status(400).json({ error: "Все поля обязательны" });
         }
-        res.json({ message: "✅ Данные сотрудника обновлены", employee: result[0] });
-    } catch (err) {
-        console.error("❌ Ошибка обновления данных сотрудника:", err);
-        res.status(500).json({ error: "Ошибка обновления сотрудника", details: err.message });
+        await pool.query(
+            "UPDATE employees SET first_name = $1, last_name = $2, phone_number = $3 WHERE id = $4",
+            [first_name, last_name, phone_number, id]
+        );
+        res.json({ message: "Данные сотрудника обновлены" });
+    } catch (error) {
+        console.error("Ошибка обновления сотрудника:", error);
+        res.status(500).json({ error: "Ошибка сервера" });
     }
 });
 
-// Запуск сервера с обработкой ошибок
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, (err) => {
-    if (err) {
-        console.error("❌ Ошибка при запуске сервера:", err);
-        process.exit(1);
-    }
-    console.log(`🚀 Сервер запущен на порту ${PORT}`);
+// Запуск сервера
+app.listen(port, () => {
+    console.log(`🚀 Сервер запущен на порту ${port}`);
 });
