@@ -6,32 +6,43 @@
     <title>Сотрудники</title>
     <script>
         async function fetchEmployees() {
-            const response = await fetch("/employees/list");
-            const employees = await response.json();
-            const table = document.getElementById("employeesTable");
-            table.innerHTML = "";
-            employees.forEach(emp => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>\${emp.id}</td>
-                    <td>\${emp.first_name} \${emp.last_name}</td>
-                    <td>\${emp.phone_number}</td>
-                    <td>
-                        <button onclick="deleteEmployee(\${emp.id})">Удалить</button>
-                    </td>
-                `;
-                table.appendChild(row);
-            });
+            try {
+                const response = await fetch("/employees/list");
+                if (!response.ok) {
+                    throw new Error("Ошибка загрузки данных");
+                }
+                const employees = await response.json();
+                const table = document.getElementById("employeesTable");
+                table.innerHTML = "";
+                employees.forEach(emp => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${emp.id}</td>
+                        <td>${emp.first_name} ${emp.last_name}</td>
+                        <td>${emp.phone_number}</td>
+                        <td>
+                            <button onclick="deleteEmployee(${emp.id})">Удалить</button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Ошибка загрузки сотрудников:", error);
+            }
         }
 
         async function deleteEmployee(id) {
             if (!confirm("Вы уверены, что хотите удалить сотрудника?")) return;
-            const response = await fetch(`/employees/\${id}`, {
-                method: "DELETE",
-            });
-            const result = await response.json();
-            alert(result.message || "Ошибка при удалении");
-            fetchEmployees();
+            try {
+                const response = await fetch(`/employees/${id}`, {
+                    method: "DELETE",
+                });
+                const result = await response.json();
+                alert(result.message || "Ошибка при удалении");
+                fetchEmployees();
+            } catch (error) {
+                console.error("Ошибка удаления сотрудника:", error);
+            }
         }
 
         document.addEventListener("DOMContentLoaded", fetchEmployees);
