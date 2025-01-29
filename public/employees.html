@@ -21,6 +21,7 @@
                         <td>${emp.first_name} ${emp.last_name}</td>
                         <td>${emp.phone_number}</td>
                         <td>
+                            <button onclick="editEmployee(${emp.id}, '${emp.first_name}', '${emp.last_name}', '${emp.phone_number}')">Редактировать</button>
                             <button onclick="deleteEmployee(${emp.id})">Удалить</button>
                         </td>
                     `;
@@ -45,11 +46,44 @@
             }
         }
 
+        function editEmployee(id, firstName, lastName, phoneNumber) {
+            document.getElementById("employeeId").value = id;
+            document.getElementById("firstName").value = firstName;
+            document.getElementById("lastName").value = lastName;
+            document.getElementById("phoneNumber").value = phoneNumber;
+            document.getElementById("employeeForm").style.display = "block";
+        }
+
+        async function saveEmployee() {
+            const id = document.getElementById("employeeId").value;
+            const firstName = document.getElementById("firstName").value;
+            const lastName = document.getElementById("lastName").value;
+            const phoneNumber = document.getElementById("phoneNumber").value;
+            const method = id ? "PUT" : "POST";
+            const url = id ? `/employees/${id}` : "/employees";
+
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ first_name: firstName, last_name: lastName, phone_number: phoneNumber })
+                });
+                const result = await response.json();
+                alert(result.message || "Ошибка при сохранении");
+                fetchEmployees();
+                document.getElementById("employeeForm").reset();
+                document.getElementById("employeeForm").style.display = "none";
+            } catch (error) {
+                console.error("Ошибка сохранения сотрудника:", error);
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", fetchEmployees);
     </script>
 </head>
 <body>
     <h1>Список сотрудников</h1>
+    <button onclick="document.getElementById('employeeForm').style.display='block'">Добавить сотрудника</button>
     <table border="1">
         <thead>
             <tr>
@@ -61,5 +95,15 @@
         </thead>
         <tbody id="employeesTable"></tbody>
     </table>
+
+    <div id="employeeForm" style="display:none;">
+        <h2>Добавить / Редактировать сотрудника</h2>
+        <input type="hidden" id="employeeId">
+        <label>Имя: <input type="text" id="firstName"></label>
+        <label>Фамилия: <input type="text" id="lastName"></label>
+        <label>Телефон: <input type="text" id="phoneNumber"></label>
+        <button onclick="saveEmployee()">Сохранить</button>
+        <button onclick="document.getElementById('employeeForm').style.display='none'">Отмена</button>
+    </div>
 </body>
 </html>
