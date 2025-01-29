@@ -22,6 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 // Настройка статических файлов
 app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ Маршрут для загрузки employees.html
+app.get("/employees", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "employees.html"));
+});
+
 // Проверка подключения к базе
 app.get("/test-db", async (req, res) => {
     try {
