@@ -35,6 +35,7 @@ app.get("/positions", async (req, res) => {
         const result = await pool.query("SELECT * FROM Position");
         res.json(result.rows);
     } catch (err) {
+        console.error("❌ Ошибка получения должностей:", err);
         res.status(500).json({ error: "Ошибка получения должностей", details: err.message });
     }
 });
@@ -49,26 +50,48 @@ app.get("/employees/list", async (req, res) => {
         `);
         res.json(result.rows);
     } catch (err) {
+        console.error("❌ Ошибка получения сотрудников:", err);
         res.status(500).json({ error: "Ошибка получения сотрудников", details: err.message });
     }
 });
 
+// --- Добавление нового сотрудника ---
 app.post("/employees", async (req, res) => {
     const { last_name, first_name, middle_name, phone_number, birth_date, position_id, password } = req.body;
+
+    // Логирование полученных данных
+    console.log("Полученные данные для добавления:", req.body);
+
+    // Проверка на пустые значения
+    if (!last_name || !first_name || !phone_number || !birth_date || !position_id || !password) {
+        console.error("❌ Все поля обязательны для заполнения!");
+        return res.status(400).json({ error: "Все поля обязательны для заполнения!" });
+    }
+
     try {
-        await pool.query(
+        const result = await pool.query(
             `INSERT INTO Employees (last_name, first_name, middle_name, phone_number, birth_date, position_id, password)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
             [last_name, first_name, middle_name, phone_number, birth_date, position_id, password]
         );
-        res.json({ message: "✅ Сотрудник добавлен" });
+        console.log("✅ Сотрудник добавлен с ID:", result.rows[0].id);
+        res.json({ message: "✅ Сотрудник добавлен", id: result.rows[0].id });
     } catch (err) {
-        res.status(500).json({ error: "❌ Ошибка добавления сотрудника", details: err.message });
+        console.error("❌ Ошибка добавления сотрудника:", err);
+        res.status(500).json({ error: "Ошибка добавления сотрудника", details: err.message });
     }
 });
 
+// --- Обновление данных сотрудника ---
 app.put("/employees", async (req, res) => {
     const { id, last_name, first_name, middle_name, phone_number, birth_date, position_id, password } = req.body;
+
+    console.log("Обновление данных для ID:", id, req.body);
+
+    if (!id) {
+        return res.status(400).json({ error: "ID сотрудника обязателен для обновления" });
+    }
+
     try {
         await pool.query(
             `UPDATE Employees
@@ -78,17 +101,26 @@ app.put("/employees", async (req, res) => {
         );
         res.json({ message: "✅ Данные сотрудника обновлены" });
     } catch (err) {
-        res.status(500).json({ error: "❌ Ошибка обновления данных сотрудника", details: err.message });
+        console.error("❌ Ошибка обновления данных сотрудника:", err);
+        res.status(500).json({ error: "Ошибка обновления данных сотрудника", details: err.message });
     }
 });
 
+// --- Удаление сотрудника ---
 app.delete("/employees/:id", async (req, res) => {
     const { id } = req.params;
+    console.log("Удаление сотрудника с ID:", id);
+
+    if (!id) {
+        return res.status(400).json({ error: "ID сотрудника обязателен для удаления" });
+    }
+
     try {
         await pool.query("DELETE FROM Employees WHERE id = $1", [id]);
         res.json({ message: "✅ Сотрудник удалён" });
     } catch (err) {
-        res.status(500).json({ error: "❌ Ошибка удаления сотрудника", details: err.message });
+        console.error("❌ Ошибка удаления сотрудника:", err);
+        res.status(500).json({ error: "Ошибка удаления сотрудника", details: err.message });
     }
 });
 
@@ -98,7 +130,8 @@ app.get("/test-db", async (req, res) => {
         const result = await pool.query("SELECT NOW()");
         res.json({ message: "✅ Подключение к базе успешно!", time: result.rows[0] });
     } catch (err) {
-        res.status(500).json({ error: "❌ Ошибка подключения", details: err.message });
+        console.error("❌ Ошибка подключения к базе:", err);
+        res.status(500).json({ error: "Ошибка подключения к базе", details: err.message });
     }
 });
 
