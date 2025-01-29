@@ -19,7 +19,7 @@ const pool = new Pool({
 // Получение всех сотрудников
 app.get("/employees", async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM Employees");
+        const result = await pool.query("SELECT id, first_name, last_name, phone_number FROM Employees");
         res.json(result.rows);
     } catch (error) {
         console.error("Ошибка получения сотрудников", error);
